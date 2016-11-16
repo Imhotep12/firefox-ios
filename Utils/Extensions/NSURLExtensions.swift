@@ -207,14 +207,16 @@ extension NSURL {
         return self
     }
 
-    public func extractDomainName() -> String {
-        let urlString =  self.normalizedHost() ?? self.URLString
-        var arr = urlString.componentsSeparatedByString(".")
-        if (arr.count >= 2) {
-            arr.popLast()
-            return arr.joinWithSeparator(".")
+    /**
+     * Returns the second level domain (SLD) of a url. It removes any subdomain/TLD
+     *
+     * E.g., https://m.foo.com/bar/baz?noo=abc#123  => foo
+     **/
+    public func hostSLD() -> String {
+        guard let publicSuffix = self.publicSuffix(), let baseDomain = self.baseDomain() else {
+            return self.normalizedHost() ?? self.URLString
         }
-        return urlString
+        return baseDomain.stringByReplacingOccurrencesOfString(".\(publicSuffix)", withString: "")
     }
 
     public func normalizedHost() -> String? {
